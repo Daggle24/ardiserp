@@ -25,9 +25,10 @@ export class CanDeactivateContactsDetails implements CanDeactivate<ContactsDetai
         // If the next state doesn't contain '/contacts'
         // it means we are navigating away from the
         // contacts app
-        if ( !nextState.url.includes('/contacts') )
+        if ( !nextState.url.includes('/contacts')  )
         {
             // Let it navigate
+            component.closeDrawer().then(() => true);
             return true;
         }
 
@@ -35,7 +36,9 @@ export class CanDeactivateContactsDetails implements CanDeactivate<ContactsDetai
         if ( nextRoute.paramMap.get('id') )
         {
             // Just navigate
+            component.closeDrawer().then(() => true);
             return true;
+            
         }
         // Otherwise...
         else

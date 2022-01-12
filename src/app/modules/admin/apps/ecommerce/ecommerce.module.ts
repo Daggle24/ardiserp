@@ -17,7 +17,8 @@ import { SharedModule } from 'app/shared/shared.module';
 import { InventoryComponent } from 'app/modules/admin/apps/ecommerce/inventory/inventory.component';
 import { InventoryListComponent } from 'app/modules/admin/apps/ecommerce/inventory/list/inventory.component';
 import { ecommerceRoutes } from 'app/modules/admin/apps/ecommerce/ecommerce.routing';
-
+import {MatTabsModule} from '@angular/material/tabs';
+import { MatTableModule } from '@angular/material/table';
 @NgModule({
     declarations: [
         InventoryComponent,
@@ -38,7 +39,9 @@ import { ecommerceRoutes } from 'app/modules/admin/apps/ecommerce/ecommerce.rout
         MatSelectModule,
         MatSlideToggleModule,
         MatTooltipModule,
-        SharedModule
+        SharedModule,
+        MatTabsModule,
+        MatTableModule
     ]
 })
 export class ECommerceModule

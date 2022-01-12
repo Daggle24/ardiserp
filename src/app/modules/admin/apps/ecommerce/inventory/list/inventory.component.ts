@@ -9,7 +9,40 @@ import { fuseAnimations } from '@fuse/animations';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { InventoryBrand, InventoryCategory, InventoryPagination, InventoryProduct, InventoryTag, InventoryVendor } from 'app/modules/admin/apps/ecommerce/inventory/inventory.types';
 import { InventoryService } from 'app/modules/admin/apps/ecommerce/inventory/inventory.service';
+import { MatTableDataSource } from '@angular/material/table';
+import { ContactsService } from '../../../contacts/contacts.service';
+import { Contact } from '../../../contacts/contacts.types';
 
+
+export interface PeriodicElement {
+    name: string;
+    position: number;
+    weight: number;
+    symbol: string;
+  }
+
+  const ELEMENT_DATA: PeriodicElement[] = [
+    {position: 1, name: 'Hydrogen', weight: 1.0079, symbol: 'H'},
+    {position: 2, name: 'Helium', weight: 4.0026, symbol: 'He'},
+    {position: 3, name: 'Lithium', weight: 6.941, symbol: 'Li'},
+    {position: 4, name: 'Beryllium', weight: 9.0122, symbol: 'Be'},
+    {position: 5, name: 'Boron', weight: 10.811, symbol: 'B'},
+    {position: 6, name: 'Carbon', weight: 12.0107, symbol: 'C'},
+    {position: 7, name: 'Nitrogen', weight: 14.0067, symbol: 'N'},
+    {position: 8, name: 'Oxygen', weight: 15.9994, symbol: 'O'},
+    {position: 9, name: 'Fluorine', weight: 18.9984, symbol: 'F'},
+    {position: 10, name: 'Neon', weight: 20.1797, symbol: 'Ne'},
+    {position: 11, name: 'Sodium', weight: 22.9897, symbol: 'Na'},
+    {position: 12, name: 'Magnesium', weight: 24.305, symbol: 'Mg'},
+    {position: 13, name: 'Aluminum', weight: 26.9815, symbol: 'Al'},
+    {position: 14, name: 'Silicon', weight: 28.0855, symbol: 'Si'},
+    {position: 15, name: 'Phosphorus', weight: 30.9738, symbol: 'P'},
+    {position: 16, name: 'Sulfur', weight: 32.065, symbol: 'S'},
+    {position: 17, name: 'Chlorine', weight: 35.453, symbol: 'Cl'},
+    {position: 18, name: 'Argon', weight: 39.948, symbol: 'Ar'},
+    {position: 19, name: 'Potassium', weight: 39.0983, symbol: 'K'},
+    {position: 20, name: 'Calcium', weight: 40.078, symbol: 'Ca'},
+  ];
 @Component({
     selector       : 'inventory-list',
     templateUrl    : './inventory.component.html',
@@ -41,6 +74,11 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy
 {
     @ViewChild(MatPaginator) private _paginator: MatPaginator;
     @ViewChild(MatSort) private _sort: MatSort;
+    @ViewChild('piecesPaginator') piecesPaginator: MatPaginator;
+
+
+    displayedColumns: string[] = ['position', 'name', 'weight', 'symbol'];
+  dataSource = new MatTableDataSource<PeriodicElement>(ELEMENT_DATA);
 
     products$: Observable<InventoryProduct[]>;
 
@@ -57,7 +95,11 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy
     tagsEditMode: boolean = false;
     vendors: InventoryVendor[];
     private _unsubscribeAll: Subject<any> = new Subject<any>();
+    contacts$: any;
+    contacts: any;
 
+
+    
     /**
      * Constructor
      */
@@ -65,7 +107,8 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy
         private _changeDetectorRef: ChangeDetectorRef,
         private _fuseConfirmationService: FuseConfirmationService,
         private _formBuilder: FormBuilder,
-        private _inventoryService: InventoryService
+        private _inventoryService: InventoryService,
+        private _contactsService: ContactsService
     )
     {
     }
@@ -116,6 +159,7 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy
             });
 
         // Get the categories
+        
         this._inventoryService.categories$
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((categories: InventoryCategory[]) => {
@@ -128,6 +172,22 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy
             });
 
         // Get the pagination
+
+
+       // Get the contacts
+       this.contacts$ = this._contactsService.contacts$;
+       this._contactsService.contacts$
+           .pipe(takeUntil(this._unsubscribeAll))
+           .subscribe((contacts: Contact[]) => {
+            console.log(contacts)
+               // Update the counts
+               this.contacts = contacts;
+            
+               // Mark for check
+               this._changeDetectorRef.markForCheck();
+           });
+
+
         this._inventoryService.pagination$
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((pagination: InventoryPagination) => {
@@ -189,6 +249,10 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy
      */
     ngAfterViewInit(): void
     {
+
+        this.dataSource.paginator = this.piecesPaginator;
+        console.log(this.dataSource.paginator)
+        this._changeDetectorRef.markForCheck();
         if ( this._sort && this._paginator )
         {
             // Set the initial sort
@@ -491,7 +555,8 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy
     {
         // Create the product
         this._inventoryService.createProduct().subscribe((newProduct) => {
-
+            let link = "https://ardis.app/orders/neworder"
+            window.open(link, "_blank");
             // Go to new product
             this.selectedProduct = newProduct;
 
